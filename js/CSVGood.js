@@ -27,12 +27,6 @@ const CSVGood = function (file, onStep, onError, onComplete) {
         this.fields = _header;
     };
 
-    const isHeader = (line) => {
-        // Look for empty spaces, dates and IBAN numbers
-        const isNotHeaderRegex = /["']{2}[,;]|[,;]{2}|([\d]{1,4}[\-\/][\d]{1,2}[\-\/][\d]{1,4})|([A-Z]{2}\d{2}[A-Z]{4}\d{10})/g;
-        return !isNotHeaderRegex.test(line);
-    };
-
     const isFillerLine = (line) => {
         const fillerCutoff = 2; // Account for newlines
 
@@ -50,11 +44,8 @@ const CSVGood = function (file, onStep, onError, onComplete) {
         for (let field of fields) {
             field = field.replace(/(\r\n|\n|\r)/gm,"");
 
-            if (field.endsWith(",") || field.endsWith(";"))
+            if (field.endsWith("\t"))
                 field = field.substring(0, field.length - 1);
-
-            if ((field.startsWith("\"") && field.endsWith("\"")) || (field.startsWith("\'") && field.endsWith("\'")))
-                cleanedFields.push(field.substring(1, field.length - 1));
             else
                 cleanedFields.push(field);
         }
@@ -63,7 +54,7 @@ const CSVGood = function (file, onStep, onError, onComplete) {
     };
 
     const splitLineToFields = (line) => {
-        const splitFieldsRegex = /("(?:[^"]|"")*"|[^,|;"\n\r]*)(,|;|\r?\n|\r|(.+$))/g;
+        const splitFieldsRegex = /(.*?)(?:\t|\r|\n)/g; // Splitting using TABS
 
         let fields = line.match(splitFieldsRegex);
 
@@ -110,10 +101,6 @@ const CSVGood = function (file, onStep, onError, onComplete) {
     const parseFirstRow = (line, fields) => {
         _firstLineParsed = true;
         _numberOfCols = fields.length;
-
-        if (isHeader(line)) {
-            _header = fields;
-        }
     };
 
     const splitRows = (line) => {
@@ -143,20 +130,16 @@ const CSVGood = function (file, onStep, onError, onComplete) {
 
         const fields = splitLineToFields(line);
 
+        if (!_firstLineParsed) {
+            parseFirstRow(line, fields);
+        }
+
         if (! isRowComplete(line, fields)) {
             _incompleteRow = line;
             return null;
         }
 
         const error = checkRowForErrors(line, fields);
-
-        if (!_firstLineParsed) {
-            parseFirstRow(line, fields);
-
-            // Don't return the header, if found
-            if (_header)
-                return null;
-        }
 
         // Finish row
         return new FileRow(convertRowToJson(fields), error);

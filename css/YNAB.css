@@ -12,6 +12,13 @@ body {
 h1 {
     font-weight: 500;
     font-size: 50px;
+    padding-bottom: 0;
+}
+
+span.subtitle {
+    display: block;
+    font-size: 20px;
+    font-weight: lighter;
 }
 
 h2 {

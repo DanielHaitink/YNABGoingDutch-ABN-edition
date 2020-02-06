@@ -1,5 +1,3 @@
-let bankMap = null;
-
 // Add new drop area for drag and drop behaviour
 new DropArea((files) => {
 
@@ -8,12 +6,7 @@ new DropArea((files) => {
             parseFile(file);
     };
 
-    if (bankMap === null) {
-        bankMap = new BankMap("banks.json", () => parseFiles());
-    }
-    else {
-        parseFiles();
-    }
+    parseFiles();
 });
 
 /**
@@ -29,13 +22,8 @@ const parse = function () {
         _input.value = "";
     };
 
-    // Load JSON before parsing files
-    if (bankMap === null) {
-        bankMap = new BankMap("banks.json", () => parseFiles());
-    }
-    else {
-        parseFiles();
-    }
+
+    parseFiles();
 };
 
 // Parse every file as a stream
@@ -126,269 +114,161 @@ const YNABAccountData = function (accountNumber) {
 
 YNABAccountData.DATA_DIMENSION = 6;
 
-/**
- * A mapping, which maps the bank CSVs to the YNAB format.
- * @param file {File} The file containing the JSON mapping.
- * @param onComplete {Function} The function that is called when the mapping is loaded.
- * @constructor
- */
-const BankMap = function (file, onComplete) {
-    let _mapping = null;
-
-    const loadJsonFile = () => {
-        const rawFile = new XMLHttpRequest();
-
-        rawFile.overrideMimeType("application/json");
-        rawFile.open("GET", file, true);
-
-        rawFile.onreadystatechange = function() {
-            if (rawFile.readyState === 4 && rawFile.status == "200") {
-                setMapping(rawFile.responseText);
-            }
-        };
-
-        rawFile.send(null);
-    };
-
-    const setMapping = (text) => {
-        _mapping = JSON.parse(text);
-
-        onComplete();
-    };
-
-    /**
-     * Get the bank mapping.
-     * @return {JSON} The bank mapping JSON.
-     */
-    this.getMapping = () => _mapping;
-
-    loadJsonFile();
-};
 
 /**
  *
- * @param bank
  * @constructor
  */
-const BankMapper = function (bank) {
-    const _map = bankMap.getMapping()[bank];
-
-    const getLine = (line, fieldList) => {
-        let returnLine = "";
-
-        for (const field of fieldList)
-            returnLine += line[field];
-
-        return returnLine;
-    };
-
-    // Check whether the indicator is positive
-    const isIndicatorPositive = function (indicatorField) {
-        if (!_map.positiveIndicator) {
-            if (!_map.negativeIndicator)
-                throw "NoIndicatorsError";
-            // Check for negative indicator
-            return !isIndicatorNegative(indicatorField);
-        }
-
-        return indicatorField.includes(_map.positiveIndicator);
-    };
+const BankMapperABN = function () {
+    let date, outflow, inflow, payee, account, memo;
 
     // Check whether the indicator is negative
     const isIndicatorNegative = function (indicatorField) {
-        if (!_map.negativeIndicator) {
-            if (!_map.positiveIndicator)
-                throw "NoIndicatorsError";
-            return !isIndicatorPositive(indicatorField);
-        }
-
-        return indicatorField.includes(_map.negativeIndicator);
+        return indicatorField.includes("-");
     };
 
     /**
-     * Get the bank type of this BankMapper.
+     * Get the bank type of this BankMapperABN.
      * @return {String} The key of the bank.
      */
-    this.getBank = () => bank;
+    this.getBank = () => "ABN";
 
     /**
      * Get the account number of the current line.
-     * @param line {String} A line from a CSV.
      * @return {string} The account number.
      */
-    this.getAccount = (line) => getLine(line, _map.account);
+    this.getAccount = () => account || "";
 
     /**
      * Return the date in the european format of the current line(DD-MM-YYYY)
-     * @param line {String} A line from a CSV.
      * @return {string} The date.
      */
-    this.getDate = (line) => {
-        const dateField = _map.date;
-        const text = getLine(line, dateField);
-        const dateFormat = _map.dateFormat;
-
-        if (dateFormat === BankMapper.DEFAULT_DATE_FORMAT)
-            return text;
-
-        let year = "";
-        let month = "";
-        let day = "";
-        for (let index = 0; index < dateFormat.length; ++index) {
-            switch (dateFormat.charAt(index)) {
-                case "Y":
-                    year += text.charAt(index);
-                    break;
-                case "M":
-                    month += text.charAt(index);
-                    break;
-                case "D":
-                    day += text.charAt(index);
-                    break;
-            }
-        }
-
-        return year + "-" + month + "-" + day;
-    };
+    this.getDate = () => date;
 
     /**
      * Get the payee of the current line
-     * @param line {String} A line from a CSV.
      * @return {string} The payee.
      */
-    this.getPayee = (line) => {
-        let payee = getLine(line, _map.payee);
-
-        // Fallback method for ASN and SNS
-        if (!payee || payee === "") {
-            const memo = this.getMemo(line);
-
-            if (memo.search("MCC") !== -1) {
-                const splitMemo = memo.split('>');
-
-                if (splitMemo.length > 0)
-                    return splitMemo[0].trim();
-            }
-        }
-
-        return payee;
-    };
+    this.getPayee = () => payee || "";
 
     /**
      * Get the category of the current line
-     * @param line {String} A line from a CSV.
      * @return {string} The category.
      */
-    this.getCategory = (line) => getLine(line, _map.category);
+    this.getCategory = () => "";
 
     /**
      * Get the memo of the current line
-     * @param line {String} A line from a CSV.
      * @return {string} The Memo.
      */
-    this.getMemo = (line) => getLine(line, _map.memo);
+    this.getMemo = () => memo || "";
 
-    /**
+
+        /**
      * Get the inflow of the current line
-     * @param line {String} A line from a CSV.
      * @return {string} The inflow.
      */
-    this.getInflow = (line) => {
-        let value = getLine(line, _map.inflow);
-        let indicator = value;
-
-        if (_map.separateIndicator)
-            indicator = getLine(line, _map.separateIndicator);
-
-        if (isIndicatorPositive(indicator)) {
-            if (!_map.separateIndicator && _map.positiveIndicator)
-                value = value.replace(_map.positiveIndicator, "");
-
-            if (value.startsWith("+"))
-                value = value.replace("+", "");
-
-            value = value.replace(",", ".");
-            return value;
-        }
-
-        return "0";
-    };
+    this.getInflow = () => inflow || "0";
 
     /**
      * Get the outflow of the current line
-     * @param line {String} A line from a CSV.
      * @return {string} The outflow.
      */
-    this.getOutflow = (line) => {
-        let value = getLine(line, _map.outflow);
-        let indicator = value;
+    this.getOutflow = () => outflow || "0";
 
-        if (_map.separateIndicator)
-            indicator = getLine(line, _map.separateIndicator);
+    /**
+     * Has to be called to parse a new line.
+     * @param line {string}
+     */
+    this.parseLine = (line) => {
+        const clearInfo = () => {
+            date = outflow = inflow = payee = account = memo = "";
+        };
 
-        if (isIndicatorNegative(indicator)) {
-            if (!_map.separateIndicator && _map.negativeIndicator)
-                value = value.replace(_map.negativeIndicator, "");
+        const parseDate = (text) => {
+            const dateFormat = "YYYYMMDD";
 
-            if (value.startsWith("-"))
-                value = value.replace("-", "");
+            if (dateFormat === BankMapperABN.DEFAULT_DATE_FORMAT)
+                return text;
 
-            value = value.replace(",", ".");
-            return value;
-        }
-
-        return "0";
-    };
-};
-
-BankMapper.DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
-
-/**
- * Recognize the bank based on the header.
- * @param header {Array} An array with string objects.
- * @return {BankMapper} A BankMapper for the recognized bank.
- */
-BankMapper.recognizeBank = (header) => {
-    const areArraysEqual = (arrayOne, arrayTwo) => {
-        for (let index = 0, itemOne, itemTwo; itemOne = arrayOne[index], itemTwo = arrayTwo[index]; ++index) {
-            if (itemOne !== itemTwo)
-                return false;
-        }
-        return true;
-    };
-
-    // Check the header
-    for (const key in bankMap.getMapping()) {
-        if (bankMap.getMapping().hasOwnProperty(key)) {
-            if (areArraysEqual(header, bankMap.getMapping()[key].header)) {
-                return new BankMapper(key);
+            let year = "";
+            let month = "";
+            let day = "";
+            for (let index = 0; index < dateFormat.length; ++index) {
+                switch (dateFormat.charAt(index)) {
+                    case "Y":
+                        year += text.charAt(index);
+                        break;
+                    case "M":
+                        month += text.charAt(index);
+                        break;
+                    case "D":
+                        day += text.charAt(index);
+                        break;
+                }
             }
-        }
-    }
 
-    throw "CouldNotBeRecognized";
-};
+            date = year + "-" + month + "-" + day;
+        };
 
-/**
- * Recognize the bank based on a line in the CSV. For headerless CSV files.
- * @param fields {Array} An array with string objects.
- * @return {BankMapper} A BankMapper for the recognized bank.
- */
-BankMapper.recognizeBankHeaderless = (fields) => {
-    for (const key in bankMap.getMapping()) {
-        if (bankMap.getMapping().hasOwnProperty(key)) {
-            const ibanRegex = RegExp("[A-Z]{2}\\d{2}" + bankMap.getMapping()[key].bankName + "\\d{10}", "g");
-            const accountColumns = bankMap.getMapping()[key].account;
+        const parseFlow = (text) => {
 
-            for (const col of accountColumns) {
-                if (ibanRegex.test(fields[col]))
-                    return new BankMapper(key);
+            if (isIndicatorNegative(indicator)) {
+                text = text.replace("-", "");
+                text = text.replace(",", ".");
+
+                outflow = text;
+                inflow = "0";
+            } else {
+                text = text.replace(",", ".");
+                inflow = text;
+                outflow = "0";
             }
-        }
-    }
 
-    throw "CouldNotBeRecognized";
+            return "0";
+        };
+
+        const parseTrashField = function (field) {
+            const findSlashField = (matches, name) => {
+                for (let i = 0; i < matches.length; i++) {
+                    if (matches[i][0].contains(name) && i + 1 < matches.length) {
+                        return matches[i + 1][1];
+                    }
+                }
+
+                return "";
+            };
+
+            if (field.startsWith("BEA")) {
+                const match = field.match(/(?:\/\d+\.\d+\s)(.+?)(?:,PAS)/g); // Only obtains name
+                payee = match[1];
+            } else if (field.startsWith("/")) {
+                const match = Array.from(field.matchAll(/(?:\/?)(.*?)(?:\/|\s+$)/g));
+                account = findSlashField(match, "CSID") || findSlashField(match, "IBAN");
+                payee = findSlashField(match, "NAME");
+                memo = findSlashField(match, "REMI");
+            } else if (field.startsWith("ABN")) {
+                const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$)/g));
+                //    0 is name, 1 is description
+                if (match.length >= 3) {
+                    payee = match[0][1];
+                    memo = match[1][1];
+                }
+            } else {
+                //    ERROR!
+            }
+        };
+
+        clearInfo();
+        account = line[0];
+        parseDate(line[2]);
+        parseFlow(line[6]);
+        parseTrashField(line[7]);
+    }
 };
+
+BankMapperABN.DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
+
 
 /**
  * Converts a streamed CSV file to the desired format
@@ -396,24 +276,26 @@ BankMapper.recognizeBankHeaderless = (fields) => {
  */
 const YNABConverter = function () {
     const _accounts = {}; // All the different account numbers in the file
-    let _bankMapper = null; // The bank mapping for the file
+    let _bankMapper = BankMapperABN(); // The bank mapping for the file
     let _hasConversionFailed = false;
 
     // Convert the current CSV line
     const convertLine = (line) => {
-        const account = _bankMapper.getAccount(line);
+        _bankMapper.parseLine(line);
+
+        const account = _bankMapper.getAccount();
 
         // If account has not been seen before, create new account
         if (_accounts[account] == null)
             _accounts[account] = new YNABAccountData(account);
 
         const dataRow = [
-            _bankMapper.getDate(line),
-            _bankMapper.getPayee(line),
-            _bankMapper.getCategory(line),
-            _bankMapper.getMemo(line),
-            _bankMapper.getOutflow(line),
-            _bankMapper.getInflow(line)
+            _bankMapper.getDate(),
+            _bankMapper.getPayee(),
+            _bankMapper.getCategory(),
+            _bankMapper.getMemo(),
+            _bankMapper.getOutflow(),
+            _bankMapper.getInflow()
         ];
 
         _accounts[account].addLine(dataRow);
@@ -426,22 +308,6 @@ const YNABConverter = function () {
     this.convert = function (results) {
         if (_hasConversionFailed)
             return;
-
-        // Init the BankMapper is none is created yet
-        if (!_bankMapper) {
-            try {
-                if (results.fields) // Headered file
-                    _bankMapper = BankMapper.recognizeBank(results.fields);
-                else // Headerless file
-                    _bankMapper = BankMapper.recognizeBankHeaderless(results.rows[0].data);
-
-            } catch (e) {
-                notie.alert({type: "error", text: "Bank could not be recognized!", position: "bottom"});
-
-                _hasConversionFailed = true;
-                return;
-            }
-        }
 
         // Loop through all the data
         for (let index = 0, line; line = results.rows[index]; ++index) {

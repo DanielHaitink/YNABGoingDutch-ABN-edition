@@ -1,170 +1,24 @@
 {
-  "KNAB": {
-    "bankName": "KNAB",
-    "header": [
-      "Rekeningnummer",
-      "Transactiedatum",
-      "Valutacode",
-      "CreditDebet",
-      "Bedrag",
-      "Tegenrekeningnummer",
-      "Tegenrekeninghouder",
-      "Valutadatum",
-      "Betaalwijze",
-      "Omschrijving",
-      "Type betaling",
-      "Machtigingsnummer",
-      "Incassant ID",
-      "Adres",
-      "Referentie",
-      "Boekdatum",
-      ""
-    ],
-    "account": [
-      "Rekeningnummer"
-    ],
+  "ABN": {
+    "bankName": "ABNA",
+    "account": 8,
     "date": [
-      "Transactiedatum"
-    ],
-    "dateFormat": "DD-MM-YYYY",
-    "payee": [
-      "Tegenrekeninghouder"
-    ],
-    "category": [],
-    "memo": [
-      "Omschrijving"
-    ],
-    "outflow": [
-      "Bedrag"
-    ],
-    "inflow": [
-      "Bedrag"
-    ],
-    "positiveIndicator": "C",
-    "negativeIndicator": "D",
-    "separateIndicator": ["CreditDebet"]
-  },
-  "Rabobank": {
-    "bankName": "RABO",
-    "header": [
-      "IBAN/BBAN",
-      "Munt",
-      "BIC",
-      "Volgnr",
-      "Datum",
-      "Rentedatum",
-      "Bedrag",
-      "Saldo na trn",
-      "Tegenrekening IBAN/BBAN",
-      "Naam tegenpartij",
-      "Naam uiteindelijke partij",
-      "Naam initi�rende partij",
-      "BIC tegenpartij",
-      "Code",
-      "Batch ID",
-      "Transactiereferentie",
-      "Machtigingskenmerk",
-      "Incassant ID",
-      "Betalingskenmerk",
-      "Omschrijving-1",
-      "Omschrijving-2",
-      "Omschrijving-3",
-      "Reden retour",
-      "Oorspr bedrag",
-      "Oorspr munt",
-      "Koers"
-    ],
-    "account": [
-      "IBAN/BBAN"
-    ],
-    "date": [
-      "Datum"
-    ],
-    "dateFormat": "YYYY-MM-DD",
-    "payee": [
-      "Naam tegenpartij"
-    ],
-    "category": [],
-    "memo": [
-      "Omschrijving-1",
-      "Omschrijving-2",
-      "Omschrijving-3"
-    ],
-    "outflow": [
-      "Bedrag"
-    ],
-    "inflow": [
-      "Bedrag"
-    ],
-    "positiveIndicator": "+",
-    "negativeIndicator": "-",
-    "separateIndicator": null
-  },
-  "ING Bank": {
-    "bankName": "INGB",
-    "header": [
-      "Datum",
-      "Naam / Omschrijving",
-      "Rekening",
-      "Tegenrekening",
-      "Code",
-      "Af Bij",
-      "Bedrag (EUR)",
-      "MutatieSoort",
-      "Mededelingen"
-    ],
-    "account": [
-      "Rekening"
-    ],
-    "date": [
-      "Datum"
+      3
     ],
     "dateFormat": "YYYYMMDD",
     "payee": [
-      "Naam / Omschrijving"
+      8
     ],
     "category": [],
     "memo": [
-      "Mededelingen"
+      8
     ],
     "outflow": [
-      "Bedrag (EUR)"
+      7
     ],
     "inflow": [
-      "Bedrag (EUR)"
+      7
     ],
-    "positiveIndicator": "Bij",
-    "negativeIndicator": "Af",
-    "separateIndicator": [
-      "Af Bij"
-    ]
-  },
-  "ASN Bank": {
-    "bankName": "ASNB",
-    "header": null,
-    "account": [1],
-    "date": [0],
-    "dateFormat": "DD-MM-YYYY",
-    "payee": [3],
-    "category": [],
-    "memo": [17],
-    "outflow": [10],
-    "inflow": [10],
-    "positiveIndicator": null,
-    "negativeIndicator": "-"
-  },
-  "SNS Bank": {
-    "bankName": "SNSB",
-    "header": null,
-    "account": [1],
-    "date": [0],
-    "dateFormat": "DD-MM-YYYY",
-    "payee": [3],
-    "category": [],
-    "memo": [17],
-    "outflow": [10],
-    "inflow": [10],
-    "positiveIndicator": null,
     "negativeIndicator": "-"
   }
 }
