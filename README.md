@@ -1,24 +1,23 @@
-# YNAB Going Dutch
+# YNAB Going Dutch - ABN AMRO Edition - 
 
-A CSV bank statement converter, created for Dutch banks. Completely written in javascript.
-Select csv files using the `Browse` button and it will download the converted file, super quick and easy! (Firefox will give you a prompt first. Chrome will ask you for permission if multiple files are downloaded)
+A CSV bank statement converter, created for the ABN AMRO. Completely written in javascript.
+
+Select TAB files using the `Browse` button and it will download the converted file, super quick and easy! (Firefox will give you a prompt first. Chrome will ask you for permission if multiple files are downloaded)
 
 The system will split unique account numbers in different output files.
 
 Everything is done locally. Your information never leaves your own computer.
 
-## Supported Banks
-YNAB Going Dutch will automatically recognize your bank, and convert it correctly!
-
-Currently the banks that are supported are:
- - Rabobank
- - ING bank
- - ASN bank
- - SNS bank
- - KNAB
-
- If you want support for your bank, please create a github issue, or contact me some other way.
- You are also welcome to fork the repo and add support yourself! Please create a pull request if you want your code to be added.
+## How to get TAB files?
+ - Log into your account on the ABN-AMRO website.
+ - Click on your account.
+ - Select "Rekeningopties".
+ - Select "Mutaties downloaden"
+ - Choose "TXT" as format, set the desired period of time, select the accounts you want to download.
+ - Click "download".
+ 
+## Other banks
+This project is a fork of [YNABGoingDutch](https://github.com/danielswrath/YNABGoingDutch). Check that repo out, if you are looking for support for other banks.
 
 ## Just let me use it!
-The latest version of the master branch can be used on [GitHub Pages](https://danielswrath.github.io/YNABGoingDutch). 
+The latest version of the master branch can be used on [GitHub Pages](https://ynab-abn.danielhaitink.nl). 
