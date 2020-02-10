@@ -1,3 +1,8 @@
+:root {
+    --abn-yellow: #F3C000;
+    --abn-green: #009286;
+}
+
 body {
     position: relative;
     max-width: 600px;
@@ -12,6 +17,24 @@ body {
 h1 {
     font-weight: 500;
     font-size: 50px;
+    padding-bottom: 0;
+}
+
+span.subtitle {
+    display: block;
+    font-size: 32px;
+    font-weight: bolder;
+    background: linear-gradient(to right, var(--abn-yellow) 20%, var(--abn-green) 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+span.yellow {
+    color: var(--abn-yellow);
+}
+
+span.green {
+    color: var(--abn-green);
 }
 
 h2 {
