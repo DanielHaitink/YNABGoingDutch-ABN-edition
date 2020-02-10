@@ -9,7 +9,7 @@ The system will split unique account numbers in different output files.
 Everything is done locally. Your information never leaves your own computer.
 
 ## How to get TAB files?
- - Log into your account on the ABN-AMRO website.
+ - Log into your account on the ABN AMRO website.
  - Click on your account.
  - Select "Rekeningopties".
  - Select "Mutaties downloaden"
@@ -17,7 +17,7 @@ Everything is done locally. Your information never leaves your own computer.
  - Click "download".
  
 ## Other banks
-This project is a fork of [YNABGoingDutch](https://github.com/danielswrath/YNABGoingDutch). Check that repo out, if you are looking for support for other banks.
+This project is a fork of [YNABGoingDutch](https://github.com/danielswrath/YNABGoingDutch). Please go to that repository if you are looking for other supported banks.
 
 ## Just let me use it!
 The latest version of the master branch can be used on [GitHub Pages](https://ynab-abn.danielhaitink.nl). 
