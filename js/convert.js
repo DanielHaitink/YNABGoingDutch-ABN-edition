@@ -123,8 +123,8 @@ const BankMapperABN = function () {
     let date, outflow, inflow, payee, account, memo;
 
     // Check whether the indicator is negative
-    const isIndicatorNegative = function (indicatorField) {
-        return indicatorField.includes("-");
+    const isIndicatorNegative = function (text) {
+        return text.includes("-");
     };
 
     /**
@@ -213,7 +213,7 @@ const BankMapperABN = function () {
 
         const parseFlow = (text) => {
 
-            if (isIndicatorNegative(indicator)) {
+            if (isIndicatorNegative(text)) {
                 text = text.replace("-", "");
                 text = text.replace(",", ".");
 
@@ -231,7 +231,7 @@ const BankMapperABN = function () {
         const parseTrashField = function (field) {
             const findSlashField = (matches, name) => {
                 for (let i = 0; i < matches.length; i++) {
-                    if (matches[i][0].contains(name) && i + 1 < matches.length) {
+                    if (matches[i][0].includes(name) && i + 1 < matches.length) {
                         return matches[i + 1][1];
                     }
                 }
@@ -240,13 +240,13 @@ const BankMapperABN = function () {
             };
 
             if (field.startsWith("BEA")) {
-                const match = field.match(/(?:\/\d+\.\d+\s)(.+?)(?:,PAS)/g); // Only obtains name
+                const regex = /(?:\/\d+\.\d+\s)(.+?)(?:,PAS)/g;
+                const match = regex.exec(field)// Only obtains name
                 payee = match[1];
             } else if (field.startsWith("/")) {
                 const match = Array.from(field.matchAll(/(?:\/?)(.*?)(?:\/|\s+$)/g));
-                account = findSlashField(match, "CSID") || findSlashField(match, "IBAN");
                 payee = findSlashField(match, "NAME");
-                memo = findSlashField(match, "REMI");
+                memo = findSlashField(match, "REMI") + "\t" + findSlashField(match, "CSID") || findSlashField(match, "IBAN");
             } else if (field.startsWith("ABN")) {
                 const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$)/g));
                 //    0 is name, 1 is description
@@ -276,7 +276,7 @@ BankMapperABN.DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
  */
 const YNABConverter = function () {
     const _accounts = {}; // All the different account numbers in the file
-    let _bankMapper = BankMapperABN(); // The bank mapping for the file
+    let _bankMapper = new BankMapperABN(); // The bank mapping for the file
     let _hasConversionFailed = false;
 
     // Convert the current CSV line

@@ -42,19 +42,23 @@ const CSVGood = function (file, onStep, onError, onComplete) {
         let cleanedFields = [];
 
         for (let field of fields) {
-            field = field.replace(/(\r\n|\n|\r)/gm,"");
+            field = field.replace(/(\r\n|\n|\r|\t)/gm,"");
 
-            if (field.endsWith("\t"))
-                field = field.substring(0, field.length - 1);
-            else
-                cleanedFields.push(field);
+            if (field === "")
+                continue;
+
+            cleanedFields.push(field);
+            // if (field.endsWith("\t"))
+            //     field = field.substring(0, field.length - 1);
+            // else
+            //     cleanedFields.push(field);
         }
 
         return cleanedFields;
     };
 
     const splitLineToFields = (line) => {
-        const splitFieldsRegex = /(.*?)(?:\t|\r|\n)/g; // Splitting using TABS
+        const splitFieldsRegex = /(.+?)(?:\t|\r\n|$)/g; // Splitting using TABS
 
         let fields = line.match(splitFieldsRegex);
 
@@ -125,8 +129,8 @@ const CSVGood = function (file, onStep, onError, onComplete) {
         if (line === null || line === "")
             return null;
 
-        if (!_firstLineParsed && isFillerLine(line))
-            return null;
+        // if (!_firstLineParsed && isFillerLine(line))
+        //     return null;
 
         const fields = splitLineToFields(line);
 
