@@ -245,7 +245,7 @@ const BankMapperABN = function () {
                 payee = match[1];
             } else if (field.startsWith("/")) {
                 const match = Array.from(field.matchAll(/(?:\/?)(.*?)(?:\/|\s+$)/g));
-                payee = findSlashField(match, "NAME");
+                payee = findSlashField(match, "NAME") +  ' ' + findSlashField(match, "IBAN");
                 memo = findSlashField(match, "REMI") + "\t" + findSlashField(match, "CSID") || findSlashField(match, "IBAN");
             } else if (field.startsWith("ABN")) {
                 const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$)/g));
