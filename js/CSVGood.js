@@ -62,6 +62,9 @@ const CSVGood = function (file, onStep, onError, onComplete) {
 
         let fields = line.match(splitFieldsRegex);
 
+        if (!fields)
+            return [];
+
         return cleanFields(fields);
     };
 
@@ -126,7 +129,7 @@ const CSVGood = function (file, onStep, onError, onComplete) {
     };
 
     const parseRow = (line) => {
-        if (line === null || line === "")
+        if (line === null || line === "" || line === "\n")
             return null;
 
         // if (!_firstLineParsed && isFillerLine(line))
