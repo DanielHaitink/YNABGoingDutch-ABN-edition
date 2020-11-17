@@ -87,7 +87,7 @@ const YNABAccountData = function (accountNumber) {
         }
 
         const date = new Date().toJSON().slice(0,10).replace(/-/g,"\/");
-        const fileName = accountNumber + "_" + date + ".csv";
+        const fileName = "ynab_" + accountNumber + "_" + date + ".csv";
         const blob = new Blob([blobText], {
             type: "text/csv;charset=utf-8;"
         });
@@ -208,7 +208,7 @@ const BankMapperABN = function () {
                 }
             }
 
-            date = year + "-" + month + "-" + day;
+            date = day + "-" + month + "-" + year;
         };
 
         const parseFlow = (text) => {
@@ -275,7 +275,7 @@ const BankMapperABN = function () {
     }
 };
 
-BankMapperABN.DEFAULT_DATE_FORMAT = "YYYY-MM-DD";
+BankMapperABN.DEFAULT_DATE_FORMAT = "DD-MM-YYYY";
 
 
 /**
