@@ -239,8 +239,8 @@ const BankMapperABN = function () {
                 return "";
             };
 
-            if (field.startsWith("BEA")) {
-                // BEA Pinpas payment
+            if (field.startsWith("BEA") || field.startsWith("GEA")) {
+                // BEA/GEA Pinpas payment
                 const regex = /(?:\/\d+\.\d+\s)(.+?)(?:,PAS)/g;
                 const match = regex.exec(field)// Only obtains name
                 payee = match[1];
@@ -287,7 +287,6 @@ const BankMapperABN = function () {
                 payee = name
                 if (iban !== "")
                     payee += " " + iban
-
             } else {
                 console.warn("Field not recognized " + field)
             }
