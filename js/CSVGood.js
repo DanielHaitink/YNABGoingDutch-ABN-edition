@@ -48,10 +48,6 @@ const CSVGood = function (file, onStep, onError, onComplete) {
                 continue;
 
             cleanedFields.push(field);
-            // if (field.endsWith("\t"))
-            //     field = field.substring(0, field.length - 1);
-            // else
-            //     cleanedFields.push(field);
         }
 
         return cleanedFields;
@@ -131,9 +127,6 @@ const CSVGood = function (file, onStep, onError, onComplete) {
     const parseRow = (line) => {
         if (line === null || line === "" || line === "\n")
             return null;
-
-        // if (!_firstLineParsed && isFillerLine(line))
-        //     return null;
 
         const fields = splitLineToFields(line);
 
