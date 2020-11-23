@@ -287,6 +287,10 @@ const BankMapperABN = function () {
                 payee = name
                 if (iban !== "")
                     payee += " " + iban
+            } else if (field.startsWith("KOOP")) {
+                // Buy assets
+                payee = "ABN AMRO"
+                memo = field
             } else {
                 console.warn("Field not recognized " + field)
             }
