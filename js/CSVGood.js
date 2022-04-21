@@ -54,7 +54,7 @@ const CSVGood = function (file, onStep, onError, onComplete) {
     };
 
     const splitLineToFields = (line) => {
-        const splitFieldsRegex = /(.+?)(?:\t|\r\n|$)/g; // Splitting using TABS
+        const splitFieldsRegex = /(.+?)(?:\t|\r|\n|$)/g; // Splitting using TABS
 
         let fields = line.match(splitFieldsRegex);
 

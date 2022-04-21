@@ -239,60 +239,73 @@ const BankMapperABN = function () {
                 return "";
             };
 
-            if (field.startsWith("BEA") || field.startsWith("GEA")) {
-                // BEA/GEA Pinpas payment
-                const regex = /(?:\/\d+\.\d+\s)(.+?)(?:,PAS)/g;
-                const match = regex.exec(field)// Only obtains name
-                payee = match[1];
-            } else if (field.startsWith("/")) {
-                // TRTP
-                const match = Array.from(field.matchAll(/(?:\/?)(.*?)(?:\/|\s+$)/g));
-                payee = findSlashField(match, "NAME") +  ' ' + findSlashField(match, "IBAN");
-                memo = findSlashField(match, "REMI") + "\t" + findSlashField(match, "CSID") || findSlashField(match, "IBAN");
-            } else if (field.startsWith("ABN")) {
-                // Payment from/to ABN Bank
-                const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$)/g));
-                //    0 is name, 1 is description
-                if (match.length >= 3) {
-                    payee = match[0][1];
-                    memo = match[1][1];
-                }
-            } else if (field.startsWith("STORTING BELEG. FONDS ")) {
-                // Extract details of "Beleggen" order
-                const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$|\sFONDSCODE)/g));
-                //    0 is name of fund, 3 is order details
-                if (match.length >= 4) {
-                    payee = match[0][1].substring(22);
-                    memo = match[3][1];
-                }
-            } else if (field.startsWith("SEPA")) {
-                // SEPA overboeking
-                let iban = ""
-                let name = ""
+            try {
+                if (field.startsWith("BEA") || field.startsWith("GEA")) {
+                    // BEA/GEA Pinpas payment
+                    try {
+                        const regex = /(?:\/\d+\.\d+\s)(.+?)(?:,PAS)/g;
+                        const match = regex.exec(field)// Only obtains name
+                        payee = match[1];
+                    } catch (e) {
+                        console.log("Error parsing payee: " + e);
 
-                const match = Array.from(field.matchAll(/(?:SEPA Overboeking\s+?)*(.+?):(.+?)(?:\s{2,}|$)/gm));
-                for (const m of match) {
-                    if (m[1].includes("IBAN")) {
-                        // IBAN
-                        iban = m[2]
-                    } else if (m[1].includes("Naam")) {
-                        // Naam
-                        name = m[2]
-                    } else if (m[1].includes("Omschrijving")) {
-                        // Omschrijving
-                        memo = m[2]
+                        const fallbackRegex = /(?:\s{2,})(.+?)(?:,PAS)/g;
+                        const fallbackMatch = fallbackRegex.exec(field);
+                        payee = fallbackMatch[1];
                     }
-                }
 
-                payee = name
-                if (iban !== "")
-                    payee += " " + iban
-            } else if (field.startsWith("KOOP")) {
-                // Buy assets
-                payee = "ABN AMRO"
-                memo = field
-            } else {
-                console.warn("Field not recognized " + field)
+                } else if (field.startsWith("/")) {
+                    // TRTP
+                    const match = Array.from(field.matchAll(/(?:\/?)(.*?)(?:\/|\s+$)/g));
+                    payee = findSlashField(match, "NAME") + ' ' + findSlashField(match, "IBAN");
+                    memo = findSlashField(match, "REMI") + "\t" + findSlashField(match, "CSID") || findSlashField(match, "IBAN");
+                } else if (field.startsWith("ABN")) {
+                    // Payment from/to ABN Bank
+                    const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$)/g));
+                    //    0 is name, 1 is description
+                    if (match.length >= 3) {
+                        payee = match[0][1];
+                        memo = match[1][1];
+                    }
+                } else if (field.startsWith("STORTING BELEG. FONDS ")) {
+                    // Extract details of "Beleggen" order
+                    const match = Array.from(field.matchAll(/(.+?)(?:\s{2,}|$|\sFONDSCODE)/g));
+                    //    0 is name of fund, 3 is order details
+                    if (match.length >= 4) {
+                        payee = match[0][1].substring(22);
+                        memo = match[3][1];
+                    }
+                } else if (field.startsWith("SEPA")) {
+                    // SEPA overboeking
+                    let iban = ""
+                    let name = ""
+
+                    const match = Array.from(field.matchAll(/(?:SEPA Overboeking\s+?)*(.+?):(.+?)(?:\s{2,}|$)/gm));
+                    for (const m of match) {
+                        if (m[1].includes("IBAN")) {
+                            // IBAN
+                            iban = m[2]
+                        } else if (m[1].includes("Naam")) {
+                            // Naam
+                            name = m[2]
+                        } else if (m[1].includes("Omschrijving")) {
+                            // Omschrijving
+                            memo = m[2]
+                        }
+                    }
+
+                    payee = name
+                    if (iban !== "")
+                        payee += " " + iban
+                } else if (field.startsWith("KOOP")) {
+                    // Buy assets
+                    payee = "ABN AMRO"
+                    memo = field
+                } else {
+                    console.warn("Field not recognized " + field)
+                }
+            } catch (e) {
+                console.warn("Error parsing trash field: " + e);
             }
         };
 
